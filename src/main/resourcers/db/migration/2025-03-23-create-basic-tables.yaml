@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: "2025-03-15-create-basic-tables"
+      author: "Vadim Stepuro"
+      changes:
+        - sql: >
+            CREATE TABLE "money_transaction"."group" (
+            	id uuid NOT NULL DEFAULT gen_random_uuid (),
+            	"name" varchar NOT NULL UNIQUE,
+            	"description" varchar NOT NULL,
+            	CONSTRAINT group_pkey PRIMARY KEY (id)
+            );
+            CREATE INDEX group_name_index ON "money_transaction"."group" USING hash("name");
+        - sql: >
+            CREATE TABLE "money_transaction"."sales_point" (
+                id uuid NOT NULL DEFAULT gen_random_uuid (),
+                "name" varchar NOT NULL UNIQUE,
+                group_id uuid NULL,
+                address varchar NULL,
+                longitude float NOT NULL,
+                latitude float NOT NULL,
+                CONSTRAINT sales_group_fkey FOREIGN KEY (group_id) REFERENCES "money_transaction".group(id),              
+                CONSTRAINT sales_point_pkey PRIMARY KEY (id)
+            );
+            CREATE INDEX sales_point_name_index ON "money_transaction"."sales_point" USING hash("name");
+        - sql: >
+            CREATE TABLE "money_transaction".transaction (
+                id uuid NOT NULL,
+                name varchar NULL,
+            	sales_point_id uuid NULL,
+                group_id uuid NULL,
+                amount numeric(20,2) NOT NULL,
+                type varchar NOT NULL,
+                card_mask varchar NOT NULL,
+                "date" timestamp NULL DEFAULT now(),
+                currency_code varchar NULL DEFAULT 'BYN',
+                user_id uuid NOT NULL,
+                CONSTRAINT transaction_point_fkey FOREIGN KEY (sales_point_id) REFERENCES "money_transaction".sales_point(id),
+            	CONSTRAINT transaction_pkey PRIMARY KEY (id)
+            );
+            CREATE INDEX transaction_user_index ON "money_transaction"."transaction" USING hash("user_id");
+            CREATE INDEX transaciton_date_index ON "money_transaction"."transaction" USING BRIN("date") WITH (pages_per_range = 32);

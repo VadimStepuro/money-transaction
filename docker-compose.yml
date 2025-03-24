@@ -1,0 +1,90 @@
+version: '3'
+
+services:
+  db:
+    container_name: money-db
+    image: "postgres"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+    restart: unless-stopped
+
+  zookeeper:
+    image: 'bitnami/zookeeper:3.9.1'
+    container_name: money-zookeeper
+    expose:
+      - 2181
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - zookeeper-data:/bitnami
+
+  kafka:
+    depends_on:
+      - zookeeper
+    image: 'bitnami/kafka:3.6.0'
+    container_name: money-kafka
+    expose:
+      - "9092"
+      - "29092"
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      ALLOW_PLAINTEXT_LISTENER: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:9092,PLAINTEXT_EXTERNAL://localhost:29092
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_HOSTNAME: kafka
+    volumes:
+      - kafka-data:/bitnami/kafka
+
+  pgadmin:
+    container_name: money-pgadmin
+    image: dpage/pgadmin4:7
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  kafka-ui:
+    container_name: money-kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8083:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+    volumes:
+      - kafka-ui-data:/etc/kafkaui
+
+volumes:
+  db-data:
+    driver: local
+  pgadmin-data:
+    driver: local
+  kafka-data:
+    driver: local
+  zookeeper-data:
+    driver: local
+  kafka-ui-data:
+    driver: local

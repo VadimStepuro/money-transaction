@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+
+spring:
+  application:
+    name: money-transaction
+
+  jpa:
+    open-in-view: false
+    database: postgresql
+    hibernate:
+      ddl-auto: none
+
+  liquibase:
+    change-log: classpath:db/changelog.yaml
+    default-schema: ${DB_NAME:money_transaction}
+
+  datasource:
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+
+    ## PostgreSQL
+    url: jdbc:postgresql://${DB_HOST:localhost:5432}/${DB_NAME:postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:1111}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER:localhost:29092}
+    consumer:
+      bootstrap-servers: ${KAFKA_SERVER:localhost:29092}
+      group-id: ${spring.application.name}
+      client-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      allow-auto-create-topics: ${SPRING_KAFKA_ALLOW_AUTO_CREATE_TOPICS:false}
+    producer:
+      bootstrap-servers: ${KAFKA_SERVER:localhost:29092}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+transaction:
+  default-page-size: 5
+  default-page-number: 0
