@@ -11,7 +11,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
-@Table(name = "sales_point", schema = "money_transaction")
+@Table(name = "transaction", schema = "money_transaction")
 @Builder
 @ToString
 @AllArgsConstructor
