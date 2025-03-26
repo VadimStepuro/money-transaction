@@ -22,8 +22,7 @@ import java.util.UUID;
 public class TransactionDto {
     @NotNull
     private UUID id;
-    @NotNull
-    private String description;
+    private UUID userId;
     @NotNull
     @Positive
     private BigDecimal amount;

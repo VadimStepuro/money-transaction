@@ -25,20 +25,7 @@ public class TransactionStorageServiceImpl implements TransactionStorageService 
 
     @Override
     public List<TransactionDto> findTransactions(UUID userId, Integer pageSize, Integer pageNumber) {
-        final Pageable request;
-        if (pageSize != null && pageNumber != null) {
-            request = PageRequest.of(
-                    pageNumber,
-                    pageSize,
-                    Sort.by("date").descending()
-            );
-        } else {
-            request = PageRequest.of(
-                    properties.getDefaultPageNumber(),
-                    properties.getDefaultPageSize(),
-                    Sort.by("date").descending()
-            );
-        }
+        final Pageable request = getPageable(pageSize, pageNumber);
 
         return repository.findAllByUserId(userId, request)
                 .stream()
@@ -54,5 +41,22 @@ public class TransactionStorageServiceImpl implements TransactionStorageService 
         return TransactionMapper.INSTANCE.entityToDto(save);
     }
 
+    private Pageable getPageable(Integer pageSize, Integer pageNumber) {
+        final Pageable request;
+        if (pageSize != null && pageNumber != null) {
+            request = PageRequest.of(
+                    pageNumber,
+                    pageSize,
+                    Sort.by("date").descending()
+            );
+        } else {
+            request = PageRequest.of(
+                    properties.getDefaultPageNumber(),
+                    properties.getDefaultPageSize(),
+                    Sort.by("date").descending()
+            );
+        }
+        return request;
+    }
 
 }

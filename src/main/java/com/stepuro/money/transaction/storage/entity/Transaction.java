@@ -20,7 +20,6 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String description;
     private BigDecimal amount;
     private TransactionType type;
     private String cardMask;
