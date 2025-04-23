@@ -19,6 +19,8 @@ services:
       - db-data:/var/lib/postgresql/data
       - ./db.sql:/docker-entrypoint-initdb.d/db.sql
     restart: unless-stopped
+    networks:
+      - money
 
   zookeeper:
     image: 'bitnami/zookeeper:3.9.1'
@@ -29,8 +31,8 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-    volumes:
-      - zookeeper-data:/bitnami
+    networks:
+      - money
 
   kafka:
     depends_on:
@@ -47,13 +49,11 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       ALLOW_PLAINTEXT_LISTENER: 'true'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_EXTERNAL://:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:9092,PLAINTEXT_EXTERNAL://localhost:29092
-      KAFKA_JMX_PORT: 9997
-      KAFKA_JMX_HOSTNAME: kafka
-    volumes:
-      - kafka-data:/bitnami/kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+    networks:
+      - money
 
   pgadmin:
     container_name: money-pgadmin
@@ -66,6 +66,8 @@ services:
       - "5050:80"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - money
 
   kafka-ui:
     container_name: money-kafka-ui
@@ -74,17 +76,16 @@ services:
       - "8083:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: true
-    volumes:
-      - kafka-ui-data:/etc/kafkaui
+    networks:
+      - money
 
 volumes:
   db-data:
     driver: local
   pgadmin-data:
     driver: local
-  kafka-data:
-    driver: local
-  zookeeper-data:
-    driver: local
-  kafka-ui-data:
-    driver: local
+
+networks:
+  money:
+    name: money
+    driver: bridge

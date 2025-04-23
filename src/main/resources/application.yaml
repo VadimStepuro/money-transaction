@@ -44,6 +44,8 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+
+
 transaction:
   default-page-size: 5
   default-page-number: 0
