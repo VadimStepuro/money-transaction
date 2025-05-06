@@ -20,9 +20,9 @@ public class TransactionController {
 
     private final TransactionStorageService storageService;
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
     public List<TransactionDto> getByUserId(
-            @PathVariable final UUID userId,
+            @RequestHeader("X-USER-ID") final UUID userId,
             @RequestParam(required = false) final Integer pageSize,
             @RequestParam(required = false) final Integer pageNumber
     ) {
@@ -30,7 +30,11 @@ public class TransactionController {
     }
 
     @PostMapping
-    public TransactionDto saveTransaction(@RequestBody final TransactionDto transaction) {
+    public TransactionDto saveTransaction(
+            @RequestHeader("X-USER-ID") final UUID userId,
+            @RequestBody final TransactionDto transaction
+    ) {
+        transaction.setUserId(userId);
         return storageService.saveNewTransaction(transaction);
     }
 
