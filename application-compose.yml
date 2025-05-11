@@ -11,6 +11,26 @@ services:
       DB_HOST: "db:5432"
     networks:
       - money
+  money-authorization:
+    container_name: money-authorization
+    image: 'vadimstepuro/money-authorization:latest'
+    environment:
+      KAFKA_SERVER: "kafka:29092"
+      DB_HOST: "db:5432"
+    ports:
+      - '8081:8081'
+    networks:
+      - money
+  money-gateway:
+    container_name: money-gateway
+    image: 'vadimstepuro/money-gateway:latest'
+    ports:
+      - '8082:8082'
+    environment:
+      AUTH_HOST: "http://money-authorization:8081"
+      TRANSACTIONS_HOST: "http://money-transaction:8080"
+    networks:
+      - money
 
 networks:
   money:
