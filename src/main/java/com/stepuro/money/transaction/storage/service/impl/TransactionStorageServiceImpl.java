@@ -27,7 +27,7 @@ public class TransactionStorageServiceImpl implements TransactionStorageService 
     public List<TransactionDto> findTransactions(UUID userId, Integer pageSize, Integer pageNumber) {
         final Pageable request = getPageable(pageSize, pageNumber);
 
-        return repository.findAllByUserId(userId, request)
+        return repository.findAllByUserIdOrderByDateDesc(userId, request)
                 .stream()
                 .map(TransactionMapper.INSTANCE::entityToDto)
                 .toList();

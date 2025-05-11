@@ -44,7 +44,12 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
-
+conversion:
+  url: ${CONVERSION_URL:https://api.currencyapi.com}
+  key: ${CONVERSION_KEY:}
+  default-currency: ${DEFAULT_CURRENCY:USD}
+  scale: 2
+  rounding-mode: HALF_EVEN
 
 transaction:
   default-page-size: 5

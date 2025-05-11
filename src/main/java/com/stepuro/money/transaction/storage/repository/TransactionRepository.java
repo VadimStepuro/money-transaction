@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
-    List<Transaction> findAllByUserId(UUID userId, Pageable pageable);
+    List<Transaction> findAllByUserIdOrderByDateDesc(UUID userId, Pageable pageable);
 }
