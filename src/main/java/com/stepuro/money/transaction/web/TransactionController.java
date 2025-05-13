@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,9 +25,12 @@ public class TransactionController {
     public List<TransactionDto> getByUserId(
             @RequestHeader("X-USER-ID") final UUID userId,
             @RequestParam(required = false) final Integer pageSize,
-            @RequestParam(required = false) final Integer pageNumber
+            @RequestParam(required = false) final Integer pageNumber,
+            @RequestParam(required = false) final UUID groupId,
+            @RequestParam(required = false) final LocalDate startDate,
+            @RequestParam(required = false) final LocalDate endDate
     ) {
-        return storageService.findTransactions(userId, pageSize, pageNumber);
+        return storageService.findTransactions(userId, pageSize, pageNumber, groupId, startDate, endDate);
     }
 
     @PostMapping

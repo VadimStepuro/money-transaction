@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +25,43 @@ public class TransactionStorageServiceImpl implements TransactionStorageService 
     private final TransactionProperties properties;
 
     @Override
-    public List<TransactionDto> findTransactions(UUID userId, Integer pageSize, Integer pageNumber) {
+    public List<TransactionDto> findTransactions(
+            final UUID userId,
+            final Integer pageSize,
+            final Integer pageNumber,
+            final UUID groupId,
+            final LocalDate startDate,
+            final LocalDate endDate
+    ) {
         final Pageable request = getPageable(pageSize, pageNumber);
+
+        if (groupId != null) {
+            if (startDate != null && endDate != null) {
+                return repository.findAllByDateBetweenAndGroupIdAndUserIdOrderByDateDesc(startDate.atStartOfDay(),
+                                endDate.atStartOfDay(),
+                                groupId,
+                                userId,
+                                request)
+                        .stream()
+                        .map(TransactionMapper.INSTANCE::entityToDto)
+                        .toList();
+            }
+
+            return repository.findAllByGroupIdAndUserIdOrderByDateDesc(groupId, userId, request)
+                    .stream()
+                    .map(TransactionMapper.INSTANCE::entityToDto)
+                    .toList();
+        }
+
+        if (startDate != null && endDate != null) {
+            return repository.findAllByDateBetweenAndUserIdOrderByDateDesc(startDate.atStartOfDay(),
+                            endDate.atStartOfDay(),
+                            userId,
+                            request)
+                    .stream()
+                    .map(TransactionMapper.INSTANCE::entityToDto)
+                    .toList();
+        }
 
         return repository.findAllByUserIdOrderByDateDesc(userId, request)
                 .stream()

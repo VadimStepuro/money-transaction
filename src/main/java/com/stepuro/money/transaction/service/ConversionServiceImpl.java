@@ -32,12 +32,22 @@ public class ConversionServiceImpl implements ConversionService {
     public Map<String, Conversion> getConversion(
             final LocalDate date,
             final List<String> currencies,
-            final String baseCurrency
+            final String baseCurrency,
+            final String preferredCurrency
     ) {
-        return client.getHistoricalData(
-                properties.key(),
-                        date,
-                        Strings.isBlank(baseCurrency) ? properties.defaultCurrency() : baseCurrency)
+        final String currency;
+
+        if (Strings.isBlank(baseCurrency)) {
+            if (Strings.isBlank(preferredCurrency)) {
+                currency = properties.defaultCurrency();
+            } else {
+                currency = preferredCurrency;
+            }
+        } else {
+            currency = baseCurrency;
+        }
+
+        return client.getHistoricalData(properties.key(), date, currency)
                 .getData()
                 .entrySet()
                 .stream()
@@ -50,13 +60,24 @@ public class ConversionServiceImpl implements ConversionService {
             final UUID userId,
             final Integer pageSize,
             final Integer pageNumber,
-            final String currency
+            final String currency,
+            final String preferredCurrency,
+            final UUID groupId,
+            final LocalDate startDate,
+            final LocalDate endDate
     ) {
         final List<TransactionDto> transactions = transactionStorageService.findTransactions(
                 userId,
                 pageSize,
-                pageNumber
+                pageNumber,
+                groupId,
+                startDate,
+                endDate
         );
+
+        final String baseCurrency = Strings.isBlank(preferredCurrency)
+                ? properties.defaultCurrency()
+                : preferredCurrency;
 
         return transactions.stream()
                 .map(transaction -> {
@@ -68,7 +89,7 @@ public class ConversionServiceImpl implements ConversionService {
                     final ConversionHistoricalResponse historicalData = client.getHistoricalData(
                             properties.key(),
                             transaction.getDate().toLocalDate(),
-                            properties.defaultCurrency()
+                            baseCurrency
                     );
 
                     final Map<String, Conversion> currencyRate = historicalData.getData();

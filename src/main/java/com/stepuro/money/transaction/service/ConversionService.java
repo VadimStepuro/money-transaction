@@ -12,13 +12,18 @@ public interface ConversionService {
     Map<String, Conversion> getConversion(
             LocalDate date,
             List<String> currencies,
-            String baseCurrency
+            String baseCurrency,
+            String preferredCurrency
     );
 
     List<TransactionDto> findTransactions(
             UUID userId,
             Integer pageSize,
             Integer pageNumber,
-            String currency
+            String currency,
+            String preferredCurrency,
+            UUID groupId,
+            LocalDate startDate,
+            LocalDate endDate
     );
 }
